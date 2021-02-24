@@ -1,0 +1,17 @@
+{
+    "presentation_title": "Auto Integrated AMP+SEQ, AMP temperature, 300 flows, lambda=0.3 (2/9/21)",
+    "author_list": "Stephen, Lisen",
+    "basecaller_name": "REPLACE WITH BASECALLER NAME",
+    "preprocessing_features": "features",
+    "training_data_history": "history",
+    "test_data": "mb this is an image?",
+    "template_id": "1MP-qJAmpDul3lEUbQ3O2WwKPCQumyKLTuhlLnOiLBfg",
+    "analysis_list": [
+        77575,
+        77573        
+    ],
+    "sample_list": [
+        "FN-K5PC522-050 / NS-20210210-DTT-E3",
+        "FN-K5PC522-051 / NS-20210210-DTT-E4"
+    ]
+}
