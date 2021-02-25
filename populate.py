@@ -47,7 +47,6 @@ def process_json(data):
         # "Jump B Flows":jump_b
     }
 
-    print('JSON DATA: ', json_data)
     return json_data
 
 

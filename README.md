@@ -8,4 +8,4 @@
 
 
 ## Known Issues:
-- Doesn't properly calculate surface_hits from summary.json
+ 

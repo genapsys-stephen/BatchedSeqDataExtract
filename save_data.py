@@ -168,7 +168,7 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
 
 def analyze():
     with open('seq_stats.csv', mode='w') as file:
-        fieldnames = ['Chip Label', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
+        fieldnames = ['Run ID','Chip Label', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
         
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
@@ -176,8 +176,9 @@ def analyze():
         # Loop through samples
         for i, analysis in enumerate(analysis_list):
             analysis_id = analysis['run_information']['analysis_id']
-
+            # print('ANALYSIS: ', analysis)
             data_dict = {}
+
             # Loop through sign_filter, read_aligner, binary_caller, sensor_id
             for key in figures_dict.keys():
                 # print('KEY: ', key)
@@ -217,6 +218,7 @@ def analyze():
                         csv_json = process_csv(SNR_data)
                         data_dict.update(csv_json)
                         # print('CSV DATA: ', csv_json)
+            data_dict['Run ID'] = analysis['run_information']['run_id']
             data_dict['Chip Label'] = sample_list[i]
 
             extracted_data.append(data_dict)
