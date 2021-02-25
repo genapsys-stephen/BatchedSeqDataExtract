@@ -167,7 +167,7 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
 
 
 def analyze():
-    with open('seq_stats.csv', mode='w') as file:
+    with open('seq_stats.csv', mode='w', newline='') as file:
         fieldnames = ['Run ID','Chip Label', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
         
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
