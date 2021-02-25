@@ -14,12 +14,10 @@ import csv
 import urllib
 import httplib2
 import requests
-
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
 
 from process import process_json, process_csv
 
@@ -28,17 +26,6 @@ ENV_DATA = {
         'google_storage': 'https://storage.googleapis.com/genapsys-platform-dev-2-robert-lab',
         'api_url': 'https://cloudapp.dev.genapsys.com:443/api/v1/analyses',
         'key_file': 'key.txt'
-    },
-    'genhub': {
-        'google_storage': 'https://storage.googleapis.com/genapsys-platform-stg-alpha-test',
-        'api_url': 'https://genhub.genapsys.com/api/v1/analyses',
-        'key_file': 'genhub_key.txt'
-    },
-    # jax has not been tested
-    'jax': {
-        'google_storage': 'https://storage.googleapis.com/genapsys-stg-data-jax',
-        'api_url': 'https://genhub.genapsys.com:443/api/v1/analyses',
-        'key_file': 'jax_key.txt'
     }
 }
 
@@ -70,10 +57,8 @@ sample_list = config['sample_list']
 
 def get_cloud_path(analysis_id, genv):
     # Getting the analysis paths from the ID
-
     with open(genv['key_file'], "r") as key_text_file:
         api_key = key_text_file.readline().strip()
-        # print('API_KEY', api_key)
 
     # api call to the data base to get the analysis paths json file
     api_url = genv['api_url']
@@ -118,7 +103,6 @@ def get_data_paths(analysis_ids, gcp_env):
 
 analysis_list = get_data_paths(analysis_ids, gcp_env) # Get GCP paths to samples listed in analysis list --> returns JSON *** USEFUL ***
 
-
 def is_date(date_text):
     try:
         datetime.strptime(date_text, '%Y_%m_%d_%H_%M_%S')
@@ -132,14 +116,8 @@ def is_date(date_text):
 def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=None):
     # key is sensor_id, sign_filter, read_aligner, binary_caller
     # analysis_id is id from cloudapp that we provide to JSON file
-    # print('PATH JSON OBJ: ', path_json_obj)
-    # print('ANALYSIS ID: ', analysis_id)
-
     # get module url from module path
     path_to_module = path_json_obj.get(key + '_path')
-    # print('PATH TO MODULE: ', path_to_module)
-    # print('KEY: ', key)
-    # print('PATH TO MODULE: ', path_to_module)
 
     if '/' not in key:  # R1 or R2 not specified use R1 as default read
         key2 = 'R1/%s' % key
@@ -161,31 +139,24 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
     module_url = gcp_env['google_storage'] + path_to_module
     # if not is_url_valid(module_url) and attempt is None:
     #     module_url = get_module_url_from_path(key, path_json_obj, path_json_obj.get("eureka_context_id"), gcp_env, 1)
-    # print('MODULE URL: ', module_url)
     return module_url
-
 
 
 def analyze():
     with open('seq_stats.csv', mode='w', newline='') as file:
         fieldnames = ['Run ID','Chip Label', 'Analysis ID', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
-        
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
         extracted_data = []
         # Loop through samples
         for i, analysis in enumerate(analysis_list):
             analysis_id = analysis['run_information']['analysis_id']
-            # print('ANALYSIS: ', analysis)
             data_dict = {}
-
+            
             # Loop through sign_filter, read_aligner, binary_caller, sensor_id
             for key in figures_dict.keys():
-                # print('KEY: ', key)
-                # URL for a module (sign_filter, read_aligner, binary_caller, sensor_id)
                 module_url = get_module_url_from_path(key, analysis, analysis_id, gcp_env)
 
-                # print('MODULE URL: ', module_url)
                 # Loop through every figure in figures_dictionary
                 for element in figures_dict.get(key):
                     url = module_url + '/' + element
@@ -197,27 +168,18 @@ def analyze():
                             print("File %s doesn't exist, skipping." % url)
                             # missing_figures_list.append((key, element))
                             continue
-                    # print('URL: ', url)
-                    # print('ELEMENT: ', element)
                     if element == 'summary.json':
                         json_file = urllib.request.urlopen(url)
                         summary = json.loads(json_file.read().decode())
                         json_data = process_json(summary)
                         data_dict.update(json_data)
-                        # print('Summary.json data: ', json_data)
 
                     elif element == 'Active_sensors_boxplot_stats.csv':
                         csv_file = urllib.request.urlopen(url)
-                        # SNR_CSV = open(csv_file, 'r')
-                        # readlines not calculating properly
                         SNR_CSV = [l.decode('utf-8') for l in csv_file.readlines()]
                         SNR_data = csv.reader(SNR_CSV, delimiter=',')
-                        # for i, line in enumerate(SNR_data):
-                        #     print('line: ', i, line)
-                        # print('SNR_data: ', SNR_data)
                         csv_json = process_csv(SNR_data)
                         data_dict.update(csv_json)
-                        # print('CSV DATA: ', csv_json)
             data_dict['Run ID'] = analysis['run_information']['run_id']
             data_dict['Chip Label'] = sample_list[i]
             data_dict['Analysis ID'] = analysis_id
@@ -226,7 +188,8 @@ def analyze():
             csv_writer.writerow(data_dict)
 
 
-        # print('EXTRACTED DATA: ', extracted_data)
         print('======================== DATA EXTRACTED & SAVED TO seq_stats.csv ========================')
 
-analyze()
+
+if __name__ == '__main__':
+    analyze()
