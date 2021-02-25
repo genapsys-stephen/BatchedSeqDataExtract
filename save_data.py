@@ -21,7 +21,7 @@ from oauth2client import tools
 from oauth2client.file import Storage
 
 
-from populate import process_json, process_csv
+from process import process_json, process_csv
 
 ENV_DATA = {
     'dev': {
@@ -42,7 +42,7 @@ ENV_DATA = {
     }
 }
 
-# Figures to pull from GCP
+# ==================================================== Figures to pull from GCP =========================================================
 figures_dict = {
 	"sign_filter": ["Active_sensors_boxplot_stats.csv"],
 	"read_aligner": ["summary.json"],
@@ -63,7 +63,7 @@ def is_url_valid(url):
 
 
 gcp_env = ENV_DATA['dev'] # GCP info
-config = get_json('./add_plots_to_google_slides_config.json') # Path to config.json file
+config = get_json('./config.json') # Path to config.json file
 analysis_ids = config['analysis_list'] # List of samples provided in config.json file
 analysis_ids = [str(a_id) if not isinstance(a_id, str) else a_id for a_id in analysis_ids]  # Make sure samples in analysis list are strings
 sample_list = config['sample_list']

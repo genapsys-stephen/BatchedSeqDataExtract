@@ -17,7 +17,6 @@ def process_json(data):
 
     # CLuster size up to 15 sensors
     cs = data['cluster_size']
-    # cluster_list = [cs[str(x)] for x in range(1,16)]
     cluster_list = []
     for x in range(1,16):
         # Account for scenario where there is NOT 16 values in cluster_size list
@@ -35,16 +34,12 @@ def process_json(data):
     json_data = {
         "Acc80@75": 1 - cumsum_tot_error_pct_80at75 / 100,
         "Depth80@75": depth80at75,
-        # "Key": key,
-        # "Noise": noise,
         "Active": 5 * n_sensors_act,
         "Aligned 32 HPs": aligned_count,
         "BP50>98.5 32HPs": bp50greater_than985_32hps,
         "BP75>98.5 32HPs": bp75greater_than985_32hps,
         "Polyclonal (PC)": total_pc_count,
         "Surface Hit": surface_hit,
-        # "Jump Warm Up":jump_warmup,
-        # "Jump B Flows":jump_b
     }
 
     return json_data
