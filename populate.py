@@ -23,10 +23,12 @@ def process_json(data):
         # Account for scenario where there is NOT 16 values in cluster_size list
         if str(x) in cs:
             cluster_list.append(cs[str(x)])
-        else: break
+        else: 
+            print('A # between 1 to 16 is missing from cluster_list')
+            break
 
-    if len(cluster_list) < 16:
-        surface_hit = ""
+    if len(cluster_list) < 15:
+        surface_hit = 0
     else:
         surface_hit = sum(cluster_list)
 
@@ -45,6 +47,7 @@ def process_json(data):
         # "Jump B Flows":jump_b
     }
 
+    print('JSON DATA: ', json_data)
     return json_data
 
 

@@ -50,10 +50,8 @@ figures_dict = {
 
 
 def get_json(path):
-    # print('path: ', path)
     with open(path) as json_file:
         data = json.load(json_file)
-        print('data: ', data)
     return data
 
 def is_url_valid(url):
