@@ -2,6 +2,7 @@ import json
 import csv
 
 def process_json(data):
+# ------------------- data comes from summary.json (read_aligner) -----------------------
     one_percentile = data['active_sensor_stats']['one_percentile']
     cs = data['cluster_size']
     # Cluster size up to 15 sensors
