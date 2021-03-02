@@ -7,6 +7,7 @@
 
 ## Requirements/Dependencies:
 - Command to install dependencies: $pip install httplib2 apiclient oauth2client
+- Command to update apiclient: s$pip install --upgrade google-api-python-client
 - It may give you an error and ask to install some other packages using pip install.
 
 
