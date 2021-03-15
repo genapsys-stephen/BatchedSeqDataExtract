@@ -22,7 +22,7 @@ def process_json(data):
             return sum(cluster_list)
 
     return {
-        "Acc80@75": 1 - data['heatmaps']['80%_@_75']['cumsum_tot_error_pct']['-1'] / 100,
+        "Acc80@75": '{:.3%}'.format(1 - data['heatmaps']['80%_@_75']['cumsum_tot_error_pct']['-1'] / 100),
         "Depth80@75": data['heatmaps']['80%_@_75']['depth']['-1'][0],
         "Active": 5 * data['n_sensors_act'],
         "Aligned 32 HPs": one_percentile['aligned_count'],
