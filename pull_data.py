@@ -55,7 +55,6 @@ analysis_ids = config['analysis_list'] # List of samples provided in config.json
 analysis_ids = [str(a_id) if not isinstance(a_id, str) else a_id for a_id in analysis_ids]  # Make sure samples in analysis list are strings
 sample_list = config['sample_list']
 
-# User states 133 or 300 flows in config.json --- Use 300 flows as default
 flows = None
 flows = int(config['flows'])
 

@@ -88,26 +88,33 @@ def process_csv(flows, SNR_data):
         jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298, 334, 341, 375, 411, 413, 447, 483, 490, 524, 560, 562, 596, 632]
 
 
-    print('LENGTH: ', len(snr_csv_list)) # 133 assume 335 rows/length
+    try:
+        key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
+        noise_list = [abs(float(snr_csv_list[idx][jumps_std])) for idx in noise_idxs]
 
-    key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
-    noise_list = [abs(float(snr_csv_list[idx][jumps_std])) for idx in noise_idxs]
+        # JUMP_WARMUP
+        jw_idxs = [6, 8, 10, 12, 14, 16]
+        jw_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jw_idxs]
 
-    # JUMP_WARMUP
-    jw_idxs = [6, 8, 10, 12, 14, 16]
-    jw_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jw_idxs]
+        # JUMP_WARMUP_O
+        jwo_idxs = [7, 9, 11, 13, 15, 17]
+        jwo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jwo_idxs]
 
-    # JUMP_WARMUP_O
-    jwo_idxs = [7, 9, 11, 13, 15, 17]
-    jwo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jwo_idxs]
+        jb_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jb_idxs]
 
-    jb_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jb_idxs]
+        jbo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jbo_idxs]
 
-    jbo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jbo_idxs]
+        return {
+            "Key": round(sum(key_list) / len(key_list), 1),
+            "Noise": round((sum(noise_list) / len(noise_list)), 1),
+            "Jump Warm Up": round((sum(jw_list) / len(jw_list)) - (sum(jwo_list) / len(jwo_list))),
+            "Jump B Flows": round((sum(jb_list) / len(jb_list)) - (sum(jbo_list) / len(jbo_list)))
+        }
 
-    return {
-        "Key": round(sum(key_list) / len(key_list), 1),
-        "Noise": round((sum(noise_list) / len(noise_list)), 1),
-        "Jump Warm Up": round((sum(jw_list) / len(jw_list)) - (sum(jwo_list) / len(jwo_list))),
-        "Jump B Flows": round((sum(jb_list) / len(jb_list)) - (sum(jbo_list) / len(jbo_list)))
-    }
+    except IndexError as e:
+        if str(e) == 'list index out of range':
+            print('Potential Reasons for the error: ')
+            print('-------------------------------------')
+            print('1) Is the correct file being downloaded?')
+            print('2) Did you set flows to the correct value (133 or 300) in config.json?')
+            print('-------------------------------------')
