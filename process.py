@@ -1,7 +1,7 @@
 import json
 import csv
 
-def process_json(data):
+def process_json(flows, data):
 # ------------------- data comes from summary.json (read_aligner) -----------------------
     one_percentile = data['active_sensor_stats']['one_percentile']
     cs = data['cluster_size']
@@ -21,31 +21,76 @@ def process_json(data):
         else:
             return sum(cluster_list)
 
-    return {
-        "Acc80@75": '{:.3%}'.format(1 - data['heatmaps']['80%_@_75']['cumsum_tot_error_pct']['-1'] / 100),
-        "Depth80@75": data['heatmaps']['80%_@_75']['depth']['-1'][0],
-        "Active": 5 * data['n_sensors_act'],
-        "Aligned 32 HPs": one_percentile['aligned_count'],
-        "BP50>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['50'],
-        "BP75>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['75'],
-        "Polyclonal (PC)": one_percentile['total_pc_count'],
-        "Surface Hit": calc_surface_hit(),
-    }
+    if flows == 133:
+        return {
+            "Acc80@50": '{:.3%}'.format(1 - data['heatmaps']['80%_@_50']['cumsum_tot_error_pct']['-1'] / 100),
+            "Depth80@50": data['heatmaps']['80%_@_50']['depth']['-1'][0],
+            "Active": 5 * data['n_sensors_act'],
+            "Aligned 32 HPs": one_percentile['aligned_count'],
+            "BP20>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['20'],
+            "BP50>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['50'],
+            "Polyclonal (PC)": one_percentile['total_pc_count'],
+            "Surface Hit": calc_surface_hit(),
+        }
+    elif flows == 300:
+        return {
+            "Acc80@75": '{:.3%}'.format(1 - data['heatmaps']['80%_@_75']['cumsum_tot_error_pct']['-1'] / 100),
+            "Depth80@75": data['heatmaps']['80%_@_75']['depth']['-1'][0],
+            "Active": 5 * data['n_sensors_act'],
+            "Aligned 32 HPs": one_percentile['aligned_count'],
+            "BP50>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['50'],
+            "BP75>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['75'],
+            "Polyclonal (PC)": one_percentile['total_pc_count'],
+            "Surface Hit": calc_surface_hit(),
+        }
 
 
-def process_csv(SNR_data):
+def process_csv(flows, SNR_data):
 # ------------------- SNR data comes from SNR.csv -----------------------
     snr_csv_list = list(SNR_data)
+
     jumps_50 = 10
     jumps_std = 13
     jumps_raw_50 = 4
 
-    # Key: AVG(K26, K28, K30, K32, K34)
-    key_idxs = [25, 27, 29, 31, 33]
-    key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
+    if flows == 133:
+        # Key: AVG(K25, K27, K29, K31, K33)
+        # key_idxs = [24, 26, 28, 30, 32]
 
-    # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
-    noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
+        # Key: AVG(K26, K28, K30, K32, K34)
+        key_idxs = [25, 27, 29, 31, 33]
+        
+        # Noise: AVG(N23, N35, N42, N76, N112, N114, N148, N184, N191, N225, N261, N263, N297, N333)
+        # noise_idxs = [22, 34, 41, 75, 111, 113, 147, 183, 190, 224, 260, 262, 296, 332]
+
+        # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
+        noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
+
+
+        # JUMP_B
+        jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
+        
+        # JUMP_B_O
+        jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298]
+
+
+    elif flows == 300:
+        # Key: AVG(K26, K28, K30, K32, K34)
+        key_idxs = [25, 27, 29, 31, 33]
+
+        # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
+        noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
+   
+        # JUMP_B
+        jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
+        
+        # JUMP_B_O
+        jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298, 334, 341, 375, 411, 413, 447, 483, 490, 524, 560, 562, 596, 632]
+
+
+    print('LENGTH: ', len(snr_csv_list)) # 133 assume 335 rows/length
+
+    key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
     noise_list = [abs(float(snr_csv_list[idx][jumps_std])) for idx in noise_idxs]
 
     # JUMP_WARMUP
@@ -56,12 +101,8 @@ def process_csv(SNR_data):
     jwo_idxs = [7, 9, 11, 13, 15, 17]
     jwo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jwo_idxs]
 
-    # JUMP_B
-    jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
     jb_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jb_idxs]
 
-    # JUMP_B_O
-    jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298, 334, 341, 375, 411, 413, 447, 483, 490, 524, 560, 562, 596, 632]
     jbo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jbo_idxs]
 
     return {

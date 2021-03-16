@@ -55,6 +55,10 @@ analysis_ids = config['analysis_list'] # List of samples provided in config.json
 analysis_ids = [str(a_id) if not isinstance(a_id, str) else a_id for a_id in analysis_ids]  # Make sure samples in analysis list are strings
 sample_list = config['sample_list']
 
+# User states 133 or 300 flows in config.json --- Use 300 flows as default
+flows = None
+flows = int(config['flows'])
+
 def get_cloud_path(analysis_id, genv):
     # Getting the analysis paths from the ID
     with open(genv['key_file'], "r") as key_text_file:
@@ -144,7 +148,13 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
 
 def analyze():
     with open('seq_stats.csv', mode='w', newline='') as file:
-        fieldnames = ['Run ID','Chip Label', 'Analysis ID', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
+        if flows == 133:
+            fieldnames = ['Run ID','Chip Label', 'Analysis ID', 'Acc80@50', 'Depth80@50','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP20>98.5 32HPs', 'BP50>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
+        elif flows == 300:
+            fieldnames = ['Run ID','Chip Label', 'Analysis ID', 'Acc80@75', 'Depth80@75','Key', 'Noise', 'Active','Aligned 32 HPs', 'BP50>98.5 32HPs', 'BP75>98.5 32HPs', 'Polyclonal (PC)','Surface Hit','Jump Warm Up','Jump B Flows']
+        else:
+            print('Please check config.json file that flows is 133 or 300')
+
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
         extracted_data = []
@@ -152,7 +162,7 @@ def analyze():
         for i, analysis in enumerate(analysis_list):
             analysis_id = analysis['run_information']['analysis_id']
             data_dict = {}
-            
+            # print('ANALYSIS: ', analysis)
             # Loop through sign_filter, read_aligner, binary_caller, sensor_id
             for key in figures_dict.keys():
                 module_url = get_module_url_from_path(key, analysis, analysis_id, gcp_env)
@@ -171,14 +181,14 @@ def analyze():
                     if element == 'summary.json':
                         json_file = urllib.request.urlopen(url)
                         summary = json.loads(json_file.read().decode())
-                        json_data = process_json(summary)
+                        json_data = process_json(flows, summary)
                         data_dict.update(json_data)
 
                     elif element == 'Active_sensors_boxplot_stats.csv':
                         csv_file = urllib.request.urlopen(url)
                         SNR_CSV = [l.decode('utf-8') for l in csv_file.readlines()]
                         SNR_data = csv.reader(SNR_CSV, delimiter=',')
-                        csv_json = process_csv(SNR_data)
+                        csv_json = process_csv(flows, SNR_data)
                         data_dict.update(csv_json)
             data_dict['Run ID'] = analysis['run_information']['run_id']
             data_dict['Chip Label'] = sample_list[i]
