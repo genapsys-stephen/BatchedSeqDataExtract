@@ -3,8 +3,8 @@ import csv
 
 def process_json(flows, data):
 # ------------------- data comes from summary.json (read_aligner) -----------------------
-    one_percentile = data['active_sensor_stats']['one_percentile']
-    cs = data['cluster_size']
+    one_percentile = data["active_sensor_stats"]["one_percentile"]
+    cs = data["cluster_size"]
     # Cluster size up to 15 sensors
     def calc_surface_hit():
         cluster_list = []
@@ -13,7 +13,7 @@ def process_json(flows, data):
             if str(x) in cs:
                 cluster_list.append(cs[str(x)])
             else: 
-                print('A # between 1 to 16 is missing from cluster_list')
+                print("A # between 1 to 16 is missing from cluster_list")
                 break
 
         if len(cluster_list) < 15:
@@ -23,29 +23,29 @@ def process_json(flows, data):
 
     if flows == 133:
         return {
-            "Acc80@50": '{:.3%}'.format(1 - data['heatmaps']['80%_@_50']['cumsum_tot_error_pct']['-1'] / 100),
-            "Depth80@50": data['heatmaps']['80%_@_50']['depth']['-1'][0],
-            "Active": 5 * data['n_sensors_act'],
-            "Aligned 32 HPs": one_percentile['aligned_count'],
-            "BP20>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['20'],
-            "BP50>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['50'],
-            "Polyclonal (PC)": one_percentile['total_pc_count'],
+            "Acc80@50": "{:.3%}".format(1 - data["heatmaps"]["80%_@_50"]["cumsum_tot_error_pct"]["-1"] / 100),
+            "Depth80@50": data["heatmaps"]["80%_@_50"]["depth"]["-1"][0],
+            "Active": 5 * data["n_sensors_act"],
+            "Aligned 32 HPs": one_percentile["aligned_count"],
+            "BP20>98.5 32HPs": data["n_sensors_above_target_accuracy"]["98.5"]["20"],
+            "BP50>98.5 32HPs": data["n_sensors_above_target_accuracy"]["98.5"]["50"],
+            "Polyclonal (PC)": one_percentile["total_pc_count"],
             "Surface Hit": calc_surface_hit(),
         }
     elif flows == 300:
         return {
-            "Acc80@75": '{:.3%}'.format(1 - data['heatmaps']['80%_@_75']['cumsum_tot_error_pct']['-1'] / 100),
-            "Depth80@75": data['heatmaps']['80%_@_75']['depth']['-1'][0],
-            "Active": 5 * data['n_sensors_act'],
-            "Aligned 32 HPs": one_percentile['aligned_count'],
-            "BP50>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['50'],
-            "BP75>98.5 32HPs": data['n_sensors_above_target_accuracy']['98.5']['75'],
-            "Polyclonal (PC)": one_percentile['total_pc_count'],
+            "Acc80@75": "{:.3%}".format(1 - data["heatmaps"]["80%_@_75"]["cumsum_tot_error_pct"]["-1"] / 100),
+            "Depth80@75": data["heatmaps"]["80%_@_75"]["depth"]["-1"][0],
+            "Active": 5 * data["n_sensors_act"],
+            "Aligned 32 HPs": one_percentile["aligned_count"],
+            "BP50>98.5 32HPs": data["n_sensors_above_target_accuracy"]["98.5"]["50"],
+            "BP75>98.5 32HPs": data["n_sensors_above_target_accuracy"]["98.5"]["75"],
+            "Polyclonal (PC)": one_percentile["total_pc_count"],
             "Surface Hit": calc_surface_hit(),
         }
 
 
-def process_csv(flows, SNR_data):
+def process_csv(flows, b_flows, SNR_data):
 # ------------------- SNR data comes from SNR.csv -----------------------
     snr_csv_list = list(SNR_data)
 
@@ -60,18 +60,22 @@ def process_csv(flows, SNR_data):
         # Key: AVG(K26, K28, K30, K32, K34)
         key_idxs = [25, 27, 29, 31, 33]
         
-        # Noise: AVG(N23, N35, N42, N76, N112, N114, N148, N184, N191, N225, N261, N263, N297, N333)
-        # noise_idxs = [22, 34, 41, 75, 111, 113, 147, 183, 190, 224, 260, 262, 296, 332]
+        if b_flows == 8:
+            noise_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349]
+            jb_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349]
+            jbo_idxs = [24, 36, 43, 61, 79, 97, 117, 119, 137, 155, 173, 193, 200, 218, 236, 254, 274, 276, 294, 312, 330, 350]
+        else:
+            # Noise: AVG(N23, N35, N42, N76, N112, N114, N148, N184, N191, N225, N261, N263, N297, N333)
+            # noise_idxs = [22, 34, 41, 75, 111, 113, 147, 183, 190, 224, 260, 262, 296, 332]
 
-        # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
-        noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
+            # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
+            noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
 
-
-        # JUMP_B
-        jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
-        
-        # JUMP_B_O
-        jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298]
+            # JUMP_B
+            jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
+            
+            # JUMP_B_O
+            jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298]
 
 
     elif flows == 300:
@@ -112,9 +116,9 @@ def process_csv(flows, SNR_data):
         }
 
     except IndexError as e:
-        if str(e) == 'list index out of range':
-            print('Potential Reasons for the error: ')
-            print('-------------------------------------')
-            print('1) Is the correct file being downloaded?')
-            print('2) Did you set flows to the correct value (133 or 300) in config.json?')
-            print('-------------------------------------')
+        if str(e) == "list index out of range":
+            print("Potential Reasons for the error: ")
+            print("-------------------------------------")
+            print("1) Is the correct file being downloaded?")
+            print("2) Did you set flows to the correct value (133 or 300) in config.json?")
+            print("-------------------------------------")
