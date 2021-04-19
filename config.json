@@ -1,8 +1,8 @@
 {
-    "flows": 300,
+    "flows": 133,
     "133_extra_bFlows": true,
     "analysis_list": [
-        85161
+        84855
     ],
     "sample_list": [
         "BS-20210325-J1"

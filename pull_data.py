@@ -57,9 +57,6 @@ sample_list = config["sample_list"]
 
 flows = None
 flows = int(config["flows"])
-b_flows = None
-if config['133_extra_bFlows']:
-    b_flows = 'extra'
 
 def get_cloud_path(analysis_id, genv):
     # Getting the analysis paths from the ID
@@ -203,7 +200,7 @@ def analyze():
                         csv_file = urllib.request.urlopen(url)
                         SNR_CSV = [l.decode("utf-8") for l in csv_file.readlines()]
                         SNR_data = csv.reader(SNR_CSV, delimiter=",")
-                        csv_json = process_csv(flows, b_flows, SNR_data)
+                        csv_json = process_csv(flows, SNR_data)
                         data_dict.update(csv_json)
             data_dict["Run ID"] = analysis["run_information"]["run_id"]
             data_dict["Chip Label"] = sample_list[i]

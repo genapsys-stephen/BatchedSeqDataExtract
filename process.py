@@ -45,7 +45,7 @@ def process_json(flows, data):
         }
 
 
-def process_csv(flows, b_flows, SNR_data):
+def process_csv(flows, SNR_data):
 # ------------------- SNR data comes from SNR.csv -----------------------
     snr_csv_list = list(SNR_data)
 
