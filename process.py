@@ -53,9 +53,18 @@ def process_csv(flows, b_flows, SNR_data):
     jumps_std = 13
     jumps_raw_50 = 4
    
-    for idx, row in enumerate(snr_csv_list):
-        if row[1].strip() == 'B0':
-            print(idx, row[1], row[13])
+    def create_noise_idxs(input):
+        noise_idxs = []
+        for idx, row in enumerate(input):
+            if row[1].strip() == 'B0':
+                noise_idxs.append(idx)
+        noise_idxs = noise_idxs[1:-1]
+        return noise_idxs
+
+    def increment_list_by_one(input):
+        new_list = [x+1 for x in input]
+        # print(new_list)
+        return(new_list)
 
     if flows == 133:
         # Key: AVG(K25, K27, K29, K31, K33)
@@ -63,50 +72,23 @@ def process_csv(flows, b_flows, SNR_data):
 
         # Key: AVG(K26, K28, K30, K32, K34)
         key_idxs = [25, 27, 29, 31, 33]
-        
-        # b_flows == 8 is for extra b_flows
-        if b_flows == 'extra':
-            noise_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349]
-            jb_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349]
-            jbo_idxs = [24, 36, 43, 61, 79, 97, 117, 119, 137, 155, 173, 193, 200, 218, 236, 254, 274, 276, 294, 312, 330, 350]
-        else:
-            # Noise: AVG(N23, N35, N42, N76, N112, N114, N148, N184, N191, N225, N261, N263, N297, N333)
-            # noise_idxs = [22, 34, 41, 75, 111, 113, 147, 183, 190, 224, 260, 262, 296, 332]
-
-            # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
-            noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
-
-            # JUMP_B
-            jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333]
-            
-            # JUMP_B_O
-            jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298]
+        noise_idxs = create_noise_idxs(snr_csv_list)
+        jb_idxs = noise_idxs
+        jbo_idxs = increment_list_by_one(noise_idxs)
 
 
     elif flows == 300:
         # Key: AVG(K26, K28, K30, K32, K34)
         key_idxs = [25, 27, 29, 31, 33]
-        if b_flows == 'extra':
-            noise_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349, 356, 374, 392, 410, 430, 432, 450, 468, 486, 506, 513, 531, 549, 567, 587, 589, 607, 625, 643, 663, 670, 688, 706, 724]
-            jb_idxs = [23, 35, 42, 60, 78, 96, 116, 118, 136, 154, 172, 192, 199, 217, 235, 253, 273, 275, 293, 311, 329, 349, 356, 374, 392, 410, 430, 432, 450, 468, 486, 506, 513, 531, 549, 567, 587, 589, 607, 625, 643, 663, 670, 688, 706, 724]
-            jbo_idxs = [24, 36, 43, 61, 79, 97, 117, 119, 137, 155, 173, 193, 200, 218, 236, 254, 274, 276, 294, 312, 330, 350, 357, 375, 393, 411, 431, 433, 451, 469, 487, 507, 514, 532, 550, 568, 588, 590, 608, 626, 644, 664, 671, 689, 707, 725]
-
-        else:
-            # Noise: AVG(N24, N36, N43, N77, N113, N115, N149, N185, N192, N226, N262, N264, N298, N334, N341, N375, N411, N413, N447, N483, N490, N524, N560, N562, N596, N632)
-            noise_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
-    
-            # JUMP_B
-            jb_idxs = [23, 35, 42, 76, 112, 114, 148, 184, 191, 225, 261, 263, 297, 333, 340, 374, 410, 412, 446, 482, 489, 523, 559, 561, 595, 631]
-            
-            # JUMP_B_O
-            jbo_idxs = [24, 36, 43, 77, 113, 115, 149, 185, 192, 226, 262, 264, 298, 334, 341, 375, 411, 413, 447, 483, 490, 524, 560, 562, 596, 632]
-
+        noise_idxs = create_noise_idxs(snr_csv_list)
+        jb_idxs = noise_idxs
+        jbo_idxs = increment_list_by_one(noise_idxs)
 
     try:
         key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
         noise_list = [abs(float(snr_csv_list[idx][jumps_std])) for idx in noise_idxs]
         # print('NOISE LIST: ', noise_list)
-        
+
         # JUMP_WARMUP
         jw_idxs = [6, 8, 10, 12, 14, 16]
         jw_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jw_idxs]
