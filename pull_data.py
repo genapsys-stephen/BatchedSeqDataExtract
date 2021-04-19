@@ -57,8 +57,9 @@ sample_list = config["sample_list"]
 
 flows = None
 flows = int(config["flows"])
+b_flows = None
 if config['133_extra_bFlows']:
-    b_flows = 8
+    b_flows = 'extra'
 
 def get_cloud_path(analysis_id, genv):
     # Getting the analysis paths from the ID
