@@ -52,6 +52,10 @@ def process_csv(flows, b_flows, SNR_data):
     jumps_50 = 10
     jumps_std = 13
     jumps_raw_50 = 4
+   
+    for idx, row in enumerate(snr_csv_list):
+        if row[1].strip() == 'B0':
+            print(idx, row[1], row[13])
 
     if flows == 133:
         # Key: AVG(K25, K27, K29, K31, K33)
@@ -101,7 +105,8 @@ def process_csv(flows, b_flows, SNR_data):
     try:
         key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]
         noise_list = [abs(float(snr_csv_list[idx][jumps_std])) for idx in noise_idxs]
-
+        # print('NOISE LIST: ', noise_list)
+        
         # JUMP_WARMUP
         jw_idxs = [6, 8, 10, 12, 14, 16]
         jw_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jw_idxs]
@@ -109,6 +114,8 @@ def process_csv(flows, b_flows, SNR_data):
         # JUMP_WARMUP_O
         jwo_idxs = [7, 9, 11, 13, 15, 17]
         jwo_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jwo_idxs]
+
+        # print(noise_list)
 
         jb_list = [float(snr_csv_list[idx][jumps_raw_50]) for idx in jb_idxs]
 

@@ -1,34 +1,10 @@
 {
-    "flows": 133,
+    "flows": 300,
     "133_extra_bFlows": true,
     "analysis_list": [
-        84857,
-        84845,
-        84849,
-        84855,
-        84847,
-        84851,
-        84853,
-        84865,
-        84860,
-        84863,
-        84867,
-        84868,
-        85033
+        85161
     ],
     "sample_list": [
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1",
-        "Test 1"
+        "BS-20210325-J1"
     ]
 }
