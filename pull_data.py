@@ -156,20 +156,24 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
 
 def analyze():
     with open("seq_stats.csv", mode="w", newline="") as file:
+
+        # print(analysis_list[0])
+
         if flows == 133:
             fieldnames = ["Run ID","Chip Label", "Analysis ID", "Acc80@50", "Depth80@50","Key", "Noise", "Active","Aligned 32 HPs", "BP20>98.5 32HPs", "BP50>98.5 32HPs", "Polyclonal (PC)","Surface Hit","Jump Warm Up","Jump B Flows"]
         elif flows == 300:
-            fieldnames = ["Run ID","Chip Label", "Analysis ID", "Acc80@75", "Depth80@75","Key", "Noise", "Active","Aligned 32 HPs", "BP50>98.5 32HPs", "BP75>98.5 32HPs", "Polyclonal (PC)","Surface Hit","Jump Warm Up","Jump B Flows"]
+            fieldnames = ["Run ID","Chip Label", "Analysis ID", "Acc80@20", "Depth80@20", "Acc80@50", "Depth80@50", "Acc80@75", "Depth80@75","Key", "Noise", "Active","Aligned 32 HPs", "BP50>98.5 32HPs", "BP75>98.5 32HPs", "Polyclonal (PC)","Surface Hit","Jump Warm Up","Jump B Flows"]
         else:
             print("Please check config.json file that flows is 133 or 300")
 
         csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
         csv_writer.writeheader()
-        extracted_data = []
+        # extracted_data = [] # extracted_data doesn't appear to be doing anything
+        
         # Loop through samples
         for i, analysis in enumerate(analysis_list):
             analysis_id = analysis["run_information"]["analysis_id"]
-            data_dict = {}
+            data_dict = {} #data_dict created for each sample
             # print("ANALYSIS: ", analysis)
             # Loop through sign_filter, read_aligner, binary_caller, sensor_id
             for key in figures_dict.keys():
@@ -206,8 +210,9 @@ def analyze():
             data_dict["Chip Label"] = sample_list[i]
             data_dict["Analysis ID"] = analysis_id
 
-            extracted_data.append(data_dict)
+            # extracted_data.append(data_dict)
             csv_writer.writerow(data_dict)
+            # print('DATA_DICT: ', data_dict)
 
 
         print("======================== DATA EXTRACTED & SAVED TO seq_stats.csv ========================")

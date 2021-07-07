@@ -5,6 +5,36 @@ def process_json(flows, data):
 # ------------------- data comes from summary.json (read_aligner) -----------------------
     one_percentile = data["active_sensor_stats"]["one_percentile"]
     cs = data["cluster_size"]
+    flow_order = data['flow_order']
+
+
+    # Calc approximate # of flows 
+    # def determine_flows(flow_list):
+    #     count = 0
+    #     for val in flow_list:
+    #         if val == 'A':
+    #             count += 1
+    #         elif val == 'T':
+    #             count += 1
+    #         elif val == 'G':
+    #             count += 1
+    #         elif val == 'C':
+    #             count += 1
+    #     return count 
+
+    # # Determines if flows is 133 or 300 (Can be modified to accomodate dif # of flows in the future)
+    # def classify_flows(flow_num):
+    #     if flow_num > 123 or flow_num < 143:
+    #         return 133
+    #     elif flow_num > 290 or flow_num < 310:
+    #         return 300
+
+    # flow_num = determine_flows(flow_order)
+    # print('FLOW NUM: ', determine_flows(flow_order))
+    # flow_group = classify_flows(flow_num)
+    # print('FLOW GROUP: ', flow_group)
+
+
     # Cluster size up to 15 sensors
     def calc_surface_hit():
         cluster_list = []
@@ -34,6 +64,10 @@ def process_json(flows, data):
         }
     elif flows == 300:
         return {
+            "Acc80@20": "{:.3%}".format(1 - data["heatmaps"]["80%_@_20"]["cumsum_tot_error_pct"]["-1"] / 100),
+            "Depth80@20": data["heatmaps"]["80%_@_20"]["depth"]["-1"][0],
+            "Acc80@50": "{:.3%}".format(1 - data["heatmaps"]["80%_@_50"]["cumsum_tot_error_pct"]["-1"] / 100),
+            "Depth80@50": data["heatmaps"]["80%_@_50"]["depth"]["-1"][0],
             "Acc80@75": "{:.3%}".format(1 - data["heatmaps"]["80%_@_75"]["cumsum_tot_error_pct"]["-1"] / 100),
             "Depth80@75": data["heatmaps"]["80%_@_75"]["depth"]["-1"][0],
             "Active": 5 * data["n_sensors_act"],
@@ -66,23 +100,11 @@ def process_csv(flows, SNR_data):
         # print(new_list)
         return(new_list)
 
-    if flows == 133:
-        # Key: AVG(K25, K27, K29, K31, K33)
-        # key_idxs = [24, 26, 28, 30, 32]
-
-        # Key: AVG(K26, K28, K30, K32, K34)
-        key_idxs = [25, 27, 29, 31, 33]
-        noise_idxs = create_noise_idxs(snr_csv_list)
-        jb_idxs = noise_idxs
-        jbo_idxs = increment_list_by_one(noise_idxs)
-
-
-    elif flows == 300:
-        # Key: AVG(K26, K28, K30, K32, K34)
-        key_idxs = [25, 27, 29, 31, 33]
-        noise_idxs = create_noise_idxs(snr_csv_list)
-        jb_idxs = noise_idxs
-        jbo_idxs = increment_list_by_one(noise_idxs)
+    # Key: AVG(K26, K28, K30, K32, K34)
+    key_idxs = [25, 27, 29, 31, 33]
+    noise_idxs = create_noise_idxs(snr_csv_list)
+    jb_idxs = noise_idxs
+    jbo_idxs = increment_list_by_one(noise_idxs)
 
     try:
         key_list = [abs(float(snr_csv_list[idx][jumps_50])) for idx in key_idxs]

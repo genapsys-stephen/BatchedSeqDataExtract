@@ -1,9 +1,9 @@
 {
-    "flows": 133,
+    "flows": 300,
     "analysis_list": [
-        84855
+        198766
     ],
     "sample_list": [
-        "BS-20210325-J1"
+        "Test"
     ]
 }
