@@ -54,6 +54,7 @@ config = get_json("./config.json") # Path to config.json file
 analysis_ids = config["analysis_list"] # List of samples provided in config.json file
 analysis_ids = [str(a_id) if not isinstance(a_id, str) else a_id for a_id in analysis_ids]  # Make sure samples in analysis list are strings
 sample_list = config["sample_list"]
+num_samples = len(analysis_ids)
 
 flows = None
 flows = int(config["flows"])
@@ -70,28 +71,35 @@ def get_cloud_path(analysis_id, genv):
     response = requests.get(api_url, headers=headers, timeout=10000, data=data, verify=True)
     # print('REPONSE: ', response)
     db_query = response.json()
-
+    analysis_root = None
     # print("DB QUERY: ", db_query)
 
     # path is not always found for valid runs/re-analysis
     if db_query.get("data"):
         db_run_id = db_query["data"][0]["runs"][0]
         analysis_paths = db_query["data"][0]["output"][str(db_run_id)]["paths"]["modules"]
-
+        # print('ANALYSIS PATH: ', analysis_paths)
         # fix keys for backward compatibility
         temp_analysis_paths = copy.deepcopy(analysis_paths)
-        for key, value in temp_analysis_paths.items():
-            analysis_paths[key + "_path"] = value
-            analysis_paths.pop(key)
+        # print('TEMP ANALYSIS PATH: ', temp_analysis_paths)
 
-        analysis_paths["run_information"] = db_query["data"][0]["output"][str(db_run_id)]["paths"]["run_information"]
-        analysis_paths["directory_version"] = db_query["data"][0]["output"][str(db_run_id)]["paths"].get(
-            "directory_version", 1)
-        analysis_paths["eureka_context_id"] = db_query["data"][0]["config"].get("eureka_context","")
-        # print("Eureka Context: "{}"".format(analysis_paths["eureka_context_id"]))
-        analysis_root = db_query["data"][0]["output"][str(db_run_id)]["paths"]["analysis_config_path"].replace(
-            "/analysis_config.json", "")
-
+        if len(temp_analysis_paths) > 0:
+            for key, value in temp_analysis_paths.items():
+                analysis_paths[key + "_path"] = value
+                analysis_paths.pop(key)
+        # else:
+        #     print('No analysis paths found')
+        try: 
+            analysis_paths["run_information"] = db_query["data"][0]["output"][str(db_run_id)]["paths"]["run_information"]
+            analysis_paths["directory_version"] = db_query["data"][0]["output"][str(db_run_id)]["paths"].get(
+                "directory_version", 1)
+            analysis_paths["eureka_context_id"] = db_query["data"][0]["config"].get("eureka_context","")
+            # print("Eureka Context: "{}"".format(analysis_paths["eureka_context_id"]))
+            analysis_root = db_query["data"][0]["output"][str(db_run_id)]["paths"]["analysis_config_path"].replace(
+                "/analysis_config.json", "")
+            print(f'Processing analysis id: {analysis_id}')
+        except: 
+            print(f'Unable to find analysis id: {analysis_id}. Have you checked the analysis manually on Google Cloud')
     # 4/9/21 Been noticing that analysis paths are not always found
     else:
         print("query to database did not return analysis paths")
@@ -104,7 +112,7 @@ def get_data_paths(analysis_ids, gcp_env):
     paths_list = []
     print("Getting cloud analysis data paths...")
     for analysis_id in analysis_ids:
-        print('analysis id: ', analysis_id)
+        # print('analysis id: ', analysis_id)
         analysis_root, data_paths = get_cloud_path(analysis_id, gcp_env)
         paths_list.append(data_paths)
     
@@ -157,7 +165,7 @@ def get_module_url_from_path(key, path_json_obj, analysis_id, gcp_env, attempt=N
 def analyze():
     with open("seq_stats.csv", mode="w", newline="") as file:
 
-        # print(analysis_list[0])
+        extracted_success_num = 0
 
         if flows == 133:
             fieldnames = ["Run ID","Chip Label", "Analysis ID", "Acc80@50", "Depth80@50","Key", "Noise", "Active","Aligned 32 HPs", "BP20>98.5 32HPs", "BP50>98.5 32HPs", "Polyclonal (PC)","Surface Hit","Jump Warm Up","Jump B Flows"]
@@ -172,6 +180,8 @@ def analyze():
         
         # Loop through samples
         for i, analysis in enumerate(analysis_list):
+            if len(analysis) < 1:
+                continue
             analysis_id = analysis["run_information"]["analysis_id"]
             data_dict = {} #data_dict created for each sample
             # print("ANALYSIS: ", analysis)
@@ -212,11 +222,10 @@ def analyze():
 
             # extracted_data.append(data_dict)
             csv_writer.writerow(data_dict)
-            # print('DATA_DICT: ', data_dict)
-
+            extracted_success_num += 1
 
         print("======================== DATA EXTRACTED & SAVED TO seq_stats.csv ========================")
-
+        print(f"======================== Successfully extracted data for {extracted_success_num}/{num_samples} samples ====================")
 
 if __name__ == "__main__":
     analyze()

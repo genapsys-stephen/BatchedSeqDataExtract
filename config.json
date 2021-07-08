@@ -1,9 +1,13 @@
 {
     "flows": 300,
     "analysis_list": [
-        198766
+        196641,
+        196636,
+        196633
     ],
     "sample_list": [
-        "Test"
+        "Test 1",
+        "Test 2",
+        "Test 3"
     ]
 }
